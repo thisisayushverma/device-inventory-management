@@ -237,18 +237,6 @@ POST /types
 
 ---
 
-# Status Codes
-
-| Code | Meaning               |
-| ---- | --------------------- |
-| 200  | Success               |
-| 201  | Resource Created      |
-| 204  | Resource Deleted      |
-| 400  | Bad Request           |
-| 404  | Resource Not Found    |
-| 500  | Internal Server Error |
-
----
 
 # Sample Workflow
 
