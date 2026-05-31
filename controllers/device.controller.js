@@ -80,7 +80,9 @@ const getAllDevices = asyncHandler(async (req, res) => {
   const page = Number(req.query.page) || 1;
   const limit = Number(req.query.limit) || 10;
   const search = req.query.search || "";
+  const {status,typeId} = req.query;
   const terms = search.trim().split(/\s+/);
+
   console.log(terms);
 
   const filter = {};
@@ -93,6 +95,15 @@ const getAllDevices = asyncHandler(async (req, res) => {
       ],
     }));
   }
+
+
+    if (status) {
+      filter.status = status;
+    }
+
+    if (typeId) {
+      filter.typeId = typeId;
+    }
 
   console.log(filter);
 

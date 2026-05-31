@@ -7,8 +7,8 @@ Features -
 3. View device by ID - done
 4. Update device details - done
 5. Delete device - done
-6. Search devices
-7. Filter by type/status
+6. Search devices -  done
+7. Filter by type/status 
 
 device schema
 model - 
