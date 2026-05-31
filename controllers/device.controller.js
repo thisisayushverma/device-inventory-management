@@ -1,11 +1,13 @@
 import Types from "../models/type.model.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import Devices from "../models/device.model.js";
-import mongoose from "mongoose";
+import mongoose, { model } from "mongoose";
 
 const createDevice = asyncHandler(async (req, res) => {
+  //   console.log(req.body);
   const { model, company, price, typeId, imageUrl, status, description } =
     req.body;
+
   if (!model || !company || !price || !typeId || !status || !description) {
     return res.status(400).json({
       error: "Invalid Credentials",
@@ -57,7 +59,7 @@ const getDeviceById = asyncHandler(async (req, res) => {
     });
   }
 
-  const getDevice = await Devices.findById(id);
+  const getDevice = await Devices.findById(id).populate("typeId", "name");
 
   if (!getDevice) {
     return res.status(404).json({
@@ -75,7 +77,29 @@ const getDeviceById = asyncHandler(async (req, res) => {
 });
 
 const getAllDevices = asyncHandler(async (req, res) => {
-  const devices = await Devices.find();
+  const page = Number(req.query.page) || 1;
+  const limit = Number(req.query.limit) || 10;
+  const search = req.query.search || "";
+  const terms = search.trim().split(/\s+/);
+  console.log(terms);
+
+  const filter = {};
+
+  if (search) {
+    filter.$and = terms.map((term) => ({
+      $or: [
+        { model: { $regex: term, $options: "i" } },
+        { company: { $regex: term, $options: "i" } },
+      ],
+    }));
+  }
+
+  console.log(filter);
+
+  const devices = await Devices.find(filter)
+    .populate("typeId", "name")
+    .skip((page - 1) * limit)
+    .limit(limit);
 
   return res.status(200).json({
     success: true,
@@ -93,8 +117,8 @@ const deleteDevice = asyncHandler(async (req, res) => {
     });
   }
 
-  const deleteDevice = await Devices.findByIdAndDelete(id,{
-    new:true
+  const deleteDevice = await Devices.findByIdAndDelete(id, {
+    new: true,
   });
   console.log("delete User-", deleteDevice);
   if (!deleteDevice) {
@@ -118,7 +142,7 @@ const udpateDevice = asyncHandler(async (req, res) => {
     return res.status(400).json({
       success: false,
       error: "Invalid device id.",
-      status:400
+      status: 400,
     });
   }
 
@@ -128,14 +152,22 @@ const udpateDevice = asyncHandler(async (req, res) => {
   });
 
   if (!device) {
-    return res.status(404).json({ error: "Device not found", success:false, status:404 });
+    return res
+      .status(404)
+      .json({ error: "Device not found", success: false, status: 404 });
   }
 
   return res.status(200).json({
-    success:true,
-    data:device,
-    status:200
+    success: true,
+    data: device,
+    status: 200,
   });
 });
 
-export { createDevice, getDeviceById, getAllDevices, deleteDevice,udpateDevice };
+export {
+  createDevice,
+  getDeviceById,
+  getAllDevices,
+  deleteDevice,
+  udpateDevice,
+};
