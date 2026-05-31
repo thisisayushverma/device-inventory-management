@@ -7,10 +7,26 @@ dns.setServers(["8.8.8.8", "8.8.4.4"]);
 
 configDotenv();
 const app = express();
+app.use(express.json());
+app.use(
+  express.urlencoded({
+    extended: true,
+  }),
+);
 
-app.get("/", (req, res) => {
-  return res.send("hello");
+app.get("/health", (req, res) => {
+  return res.status(200).json({
+    status: true,
+  });
 });
+
+import deviceRoutes from "./routes/device.routes.js";
+import typeRoutes from "./routes/types.routes.js";
+import { reqLogger } from "./middleware/reqLogger.js";
+
+app.use(reqLogger);
+app.use("/api/types", typeRoutes);
+app.use("/api/devices",deviceRoutes);
 
 dbConnector()
   .then(() => {
